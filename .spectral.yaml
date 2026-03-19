@@ -1,0 +1,119 @@
+extends: ["spectral:oas", "spectral:asyncapi"]
+
+rules:
+  # --- Regras oficiais Amplify Engage ---
+  security-must-be-enforced-for-unsafe-endpoints:
+    message: Security must be applied to "write" endpoints
+    severity: error
+    given: "$.paths.*[?(@property == 'post' || @property == 'put' || @property == 'patch' || @property == 'delete')]"
+    then:
+      - field: security
+        function: truthy
+
+  operation-operationId: off
+
+  # --- Regras customizadas de qualidade API ---
+  info-description-required:
+    description: "A descrição (description) no bloco info é obrigatória."
+    severity: error
+    given: $.info
+    then:
+      field: description
+      function: truthy
+
+  servers-required:
+    description: "O campo servers é obrigatório e deve conter ao menos um servidor."
+    severity: error
+    given: $
+    then:
+      field: servers
+      function: truthy
+
+  operation-id-required:
+    description: "O campo operationId em operações é obrigatório."
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then:
+      field: operationId
+      function: truthy
+
+  responses-success-required:
+    description: "A resposta de sucesso (200, 201 ou 204) é obrigatória."
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete].responses
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          anyOf:
+            - required: ["200"]
+            - required: ["201"]
+            - required: ["204"]
+
+  responses-400-required:
+    description: "A resposta 400 (Bad Request) é obrigatória."
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete].responses
+    then:
+      field: "400"
+      function: truthy
+
+  responses-401-required:
+    description: "A resposta 401 (Unauthorized) é obrigatória."
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete].responses
+    then:
+      field: "401"
+      function: truthy
+
+  responses-403-required:
+    description: "A resposta 403 (Forbidden) é obrigatória."
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete].responses
+    then:
+      field: "403"
+      function: truthy
+
+  responses-500-required:
+    description: "A resposta 500 (Internal Server Error) é obrigatória."
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete].responses
+    then:
+      field: "500"
+      function: truthy
+
+  operation-security-required:
+    description: "O campo security é obrigatório em nível de operação."
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then:
+      field: security
+      function: truthy
+
+  info-title-format:
+    description: "O título deve estar em formato legível (ex: Title Case) e não apenas kebab-case."
+    severity: error
+    given: $.info.title
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: "^[a-z0-9-]+$"
+
+  openapi-version-check:
+    description: "A versão do OpenAPI deve ser 3.0.x ou 3.1.x."
+    severity: error
+    given: $.openapi
+    then:
+      function: pattern
+      functionOptions:
+        match: "^3\\.[01]\\."
+
+  info-version-check:
+    description: "A versão da API deve seguir o padrão vX.Y.Z ou similar."
+    severity: error
+    given: $.info.version
+    then:
+      function: pattern
+      functionOptions:
+        match: "^v?\\d+\\.\\d+\\.\\d+$"
