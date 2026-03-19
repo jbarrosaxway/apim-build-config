@@ -166,7 +166,7 @@ function resolveRuleset() {
 function main() {
   const ws = workspaceRoot();
   const reportPath = path.join(ws, REPORT_NAME);
-  const resultsPath = path.join(ws, RESULTS_JSON);
+  const resultsPath = path.join(ws, RESULTS_NAME);
 
   let specFiles = process.env.SPECTRAL_SPECS
     ? process.env.SPECTRAL_SPECS.split(/\s+/).filter(Boolean).map((f) => path.resolve(ws, f))
