@@ -1,15 +1,34 @@
 # apim-build-config
 
-Repositório interno de configurações de build. Não exposto ao usuário final.
+Repositório de configurações de build (rulesets, scripts de relatório). O consumidor final do produto não precisa deste repositório; ele é dependência dos pipelines.
 
 ## Conteúdo
 
-- **`.spectral.yaml`** – Regras Spectral para lint de especificações OpenAPI/AsyncAPI (OAS, AsyncAPI, regras customizadas de qualidade e segurança).
+- **`.spectral.yaml`** – Regras Spectral (OAS, AsyncAPI, regras customizadas de qualidade e segurança).
+- **`scripts/spectral-report.js`** – Gera `spectral-report.md` e `spectral-lint-results.json` no workspace do projeto consumidor.
+- **`package.json`** – Dependências `@stoplight/spectral-cli` e `@stoplight/spectral-owasp-ruleset`.
 
-## Uso
+## Uso nos workflows
 
-Este repositório é referenciado como dependência por workflows do GitHub Actions (ex.: `demo-apimcli`). Os workflows fazem checkout deste repo em um diretório (ex.: `build-config`) e usam o ruleset com `--ruleset build-config/.spectral.yaml`.
+1. Checkout deste repositório em `build-config/` (no repositório do projeto, ex.: `demo-apimcli`).
+2. Instalar dependências: `npm ci --prefix build-config` (ou `npm install --prefix build-config`).
+3. Executar o relatório com o workspace do projeto como raiz:
+
+```bash
+export SPECTRAL_WORKSPACE="$GITHUB_WORKSPACE"
+node build-config/scripts/spectral-report.js
+```
+
+O script procura especificações em `examples/OAS` e `exported-apis` dentro de `SPECTRAL_WORKSPACE` (por defeito, o diretório atual de trabalho).
+
+## Uso local (a partir do projeto consumidor)
+
+```bash
+git clone https://github.com/jbarrosaxway/apim-build-config.git build-config
+cd build-config && npm install && cd ..
+SPECTRAL_WORKSPACE=$(pwd) node build-config/scripts/spectral-report.js
+```
 
 ## Acesso
 
-Repositório privado. Para que um workflow em outro repositório use este config, é necessário um token com permissão de leitura (ex.: PAT ou `BUILD_CONFIG_ACCESS_TOKEN`) ao configurar o checkout do repositório.
+Repositório público para permitir checkout com `GITHUB_TOKEN` a partir de outros workflows. Para repositório privado, use um PAT no secret `BUILD_CONFIG_ACCESS_TOKEN`.

@@ -1,0 +1,14 @@
+{
+  "name": "apim-build-config",
+  "version": "1.0.0",
+  "description": "Configurações de build: Spectral ruleset e geração de relatório de maturidade API",
+  "private": true,
+  "scripts": {
+    "spectral:report": "node scripts/spectral-report.js",
+    "spectral:lint": "spectral lint"
+  },
+  "devDependencies": {
+    "@stoplight/spectral-cli": "^6.15.0",
+    "@stoplight/spectral-owasp-ruleset": "^2.0.1"
+  }
+}
